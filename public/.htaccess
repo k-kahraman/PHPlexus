@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # If the file/directory exists, serve it directly
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    # Otherwise, reroute the request to index.php
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Deny access to .env
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>

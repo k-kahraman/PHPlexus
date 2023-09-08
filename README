@@ -1,0 +1,2 @@
+# PHPlexus
+PHPlexus is a sleek, minimalistic PHP backend framework engineered for performance and simplicity. With its robust Dependency Injection system and modern design principles, it offers an unparalleled foundation for building powerful and scalable applications.

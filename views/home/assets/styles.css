@@ -1,0 +1,39 @@
+:root {
+    /* Dark Shade */
+    --color-primary: #101820;
+    /* Light Shade */
+    --color-secondary: #f0f1f2;
+    /* Green Accent */
+    --color-accent: #21a179;
+    --font-primary: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    font-family: var(--font-primary);
+    color: var(--color-primary);
+    background-color: var(--color-secondary);
+}
+
+header,
+footer {
+    background-color: var(--color-primary);
+    color: var(--color-secondary);
+}
+
+a,
+.hover-green:hover {
+    color: var(--color-accent);
+}
+
+/* Button hover effect */
+button:hover {
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+}
+
+/* Subtle gradient for article background */
+article {
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.9) 0%,
+            rgba(240, 241, 242, 0.9) 100%);
+}
