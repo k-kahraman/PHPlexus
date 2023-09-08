@@ -1,6 +1,6 @@
 <?php
 
-namespace RepoScribe\lib;
+namespace PHPlexus\lib;
 #
 #
 # Parsedown

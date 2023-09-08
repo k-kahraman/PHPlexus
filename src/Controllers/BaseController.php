@@ -1,10 +1,10 @@
 <?php
 
-namespace RepoScribe\Controllers;
+namespace PHPlexus\Controllers;
 
-use RepoScribe\Http\Request;
-use RepoScribe\Http\Response;
-use RepoScribe\Templating\TemplateEngine;
+use PHPlexus\Http\Request;
+use PHPlexus\Http\Response;
+use PHPlexus\Templating\TemplateEngine;
 
 abstract class BaseController
 {

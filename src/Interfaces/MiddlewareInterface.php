@@ -1,9 +1,9 @@
 <?php
 
-namespace RepoScribe\Interfaces;
+namespace PHPlexus\Interfaces;
 
-use RepoScribe\Http\Request;
-use RepoScribe\Http\Response;
+use PHPlexus\Http\Request;
+use PHPlexus\Http\Response;
 
 interface MiddlewareInterface
 {

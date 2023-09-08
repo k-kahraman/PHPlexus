@@ -1,8 +1,8 @@
 <?php
 
-namespace RepoScribe\Routing;
+namespace PHPlexus\Routing;
 
-use RepoScribe\Http\Request;
+use PHPlexus\Http\Request;
 
 class Router
 {

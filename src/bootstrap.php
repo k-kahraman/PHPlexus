@@ -3,7 +3,7 @@
 // Autoload our classes using Composer's autoload
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use RepoScribe\Logging\RotatingFileLogger;
+use PHPlexus\Logging\RotatingFileLogger;
 
 // Load environment variables
 loadEnvVariables();

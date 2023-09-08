@@ -1,6 +1,6 @@
 <?php
 
-namespace RepoScribe\Http;
+namespace PHPlexus\Http;
 
 class Response
 {

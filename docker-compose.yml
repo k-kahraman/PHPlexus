@@ -1,4 +1,4 @@
-# RepoScribe/docker-compose.yml
+# PHPlexus/docker-compose.yml
 version: '3'
 
 services:

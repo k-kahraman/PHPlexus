@@ -1,8 +1,8 @@
 <?php
 
-namespace RepoScribe\Logging;
+namespace PHPlexus\Logging;
 
-use RepoScribe\Interfaces\LoggerInterface;
+use PHPlexus\Interfaces\LoggerInterface;
 
 class FileLogger implements LoggerInterface
 {

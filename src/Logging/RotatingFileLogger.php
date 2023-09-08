@@ -1,6 +1,6 @@
 <?php
 
-namespace RepoScribe\Logging;
+namespace PHPlexus\Logging;
 
 class RotatingFileLogger extends FileLogger
 {

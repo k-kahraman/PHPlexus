@@ -1,4 +1,4 @@
-# RepoScribe/Dockerfile
+# PHPlexus/Dockerfile
 FROM php:8.1-apache
 
 # Enable mod_rewrite for Apache

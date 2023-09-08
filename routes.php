@@ -1,9 +1,9 @@
 <?php
 
-use RepoScribe\Routing\Router;
-use RepoScribe\Http\HttpMethod;
-use RepoScribe\Controllers\HomeController;
-use RepoScribe\Controllers\MarkdownController;
+use PHPlexus\Routing\Router;
+use PHPlexus\Http\HttpMethod;
+use PHPlexus\Controllers\HomeController;
+use PHPlexus\Controllers\MarkdownController;
 
 $router = new Router();
 

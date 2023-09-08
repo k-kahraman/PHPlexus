@@ -1,5 +1,5 @@
 <?php
-namespace RepoScribe\Http;
+namespace PHPlexus\Http;
 
 final class HttpMethod
 {

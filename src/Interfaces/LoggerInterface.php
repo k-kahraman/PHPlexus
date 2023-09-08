@@ -1,6 +1,6 @@
 <?php
 
-namespace RepoScribe\Interfaces;
+namespace PHPlexus\Interfaces;
 
 interface LoggerInterface
 {

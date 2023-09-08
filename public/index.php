@@ -5,11 +5,11 @@
  *
  * ScribeServe is a robust and efficient PHP server framework, designed to cater 
  * to modern web applications' needs with a focus on scalability, flexibility, 
- * and performance. Being the heart of the RepoScribe project, ScribeServe 
+ * and performance. Being the heart of the PHPlexus project, ScribeServe 
  * provides the backbone for server-side rendering (SSR) and various essential 
  * server-side operations, ensuring optimal SEO and user experience.
  * 
- * RepoScribe's GitHub repository: https://github.com/repo-scribe
+ * PHPlexus's GitHub repository: https://github.com/repo-scribe
  *
  * @package     ScribeServe
  * @author      Kaan Kahraman <kaan@kahraman.io>
@@ -22,10 +22,10 @@
 require_once __DIR__ . '/../src/bootstrap.php'; // Load our bootstrap file
 $router = require __DIR__ . '/../routes.php'; // Load our routes
 
-use RepoScribe\Http\Request;
-use RepoScribe\Http\Response;
-use RepoScribe\Middleware\SecurityMiddleware;
-use RepoScribe\Middleware\MiddlewareStack;
+use PHPlexus\Http\Request;
+use PHPlexus\Http\Response;
+use PHPlexus\Middleware\SecurityMiddleware;
+use PHPlexus\Middleware\MiddlewareStack;
 
 $request = new Request();
 $response = new Response();

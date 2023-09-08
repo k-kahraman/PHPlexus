@@ -1,10 +1,10 @@
 <?php
 
-namespace RepoScribe\Middleware;
+namespace PHPlexus\Middleware;
 
-use RepoScribe\Interfaces\MiddlewareInterface;
-use RepoScribe\Http\Request;
-use RepoScribe\Http\Response;
+use PHPlexus\Interfaces\MiddlewareInterface;
+use PHPlexus\Http\Request;
+use PHPlexus\Http\Response;
 
 class SecurityMiddleware implements MiddlewareInterface
 {
