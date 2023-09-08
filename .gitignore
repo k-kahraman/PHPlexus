@@ -1,0 +1,27 @@
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore vendor folder
+/vendor/
+
+# IDE related
+.idea/
+.vscode/
+
+# Error logs
+*.log
+
+# Environment variables
+.env
+
+# OS generated
+*.lock
+
+# Temp files
+*.tmp
+*.swp
+*.swo
+
+# Build artifacts
+/build/
