@@ -1,18 +1,11 @@
 <?php
 
+use PHPlexus\Controller\Controller;
 use PHPlexus\Routing\Router;
 use PHPlexus\Http\HttpMethod;
-use PHPlexus\Controllers\HomeController;
-use PHPlexus\Controllers\MarkdownController;
 
 $router = new Router();
 
-// Simple Routes
-$router->add(HttpMethod::GET, '/home', HomeController::class);
-
-// Route Grouping
-$router->group('/blog', function() use ($router) {
-    $router->add(HttpMethod::GET, '/{category}/{post}', MarkdownController::class);
-});
+$router->add(HttpMethod::GET, '/', Controller::class);
 
 return $router;
