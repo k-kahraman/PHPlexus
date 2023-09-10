@@ -1,5 +1,5 @@
 <?php
-namespace PHPlexus\DI\Tests;
+namespace PHPlexus\Tests\Core\DI;
 
 use PHPlexus\DI\Container;
 use PHPUnit\Framework\TestCase;
