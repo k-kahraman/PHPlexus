@@ -1,8 +1,7 @@
 <?php
 namespace PHPlexus\Http;
 
-final class HttpMethod
-{
+final class HttpMethod {
     const GET = 'GET';
     const POST = 'POST';
     const PUT = 'PUT';
@@ -11,8 +10,7 @@ final class HttpMethod
     const OPTIONS = 'OPTIONS';
     const HEAD = 'HEAD';
 
-    private function __construct()
-    {
+    private function __construct() {
         // Prevent instantiation
     }
 }

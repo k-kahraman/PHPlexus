@@ -5,51 +5,63 @@ namespace PHPlexus\DI;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionNamedType;
+use Psr\Container\NotFoundExceptionInterface;
+use Psr\Container\ContainerExceptionInterface;
 
-class BindingNotFoundException extends Exception
-{
-}
-class CircularDependencyException extends Exception
-{
-}
-class ResolutionException extends Exception
-{
-}
+class BindingNotFoundException extends Exception implements NotFoundExceptionInterface {}
 
-class Container implements ContainerInterface
-{
+class CircularDependencyException extends Exception implements ContainerExceptionInterface {}
 
-    private $bindings = [];
-    private $instances = [];
-    private $resolving = [];
-    private $extensions = [];
-    private $resolved = [];
+class ResolutionException extends Exception implements ContainerExceptionInterface {}
 
-    public function bind(string $abstract, $concrete = null): void
-    {
+class Container implements ContainerInterface {
+    private array $bindings = [];
+    private array $instances = [];
+    private array $resolving = [];
+    private array $extensions = [];
+    private array $resolved = [];
+    private array $reflectionCache = [];
+    private bool $isLocked = false;
+
+    public function bind(string $abstract, mixed $concrete = null): void {
+        if ($this->isLocked) {
+            throw new ResolutionException("Container is locked. Cannot bind '$abstract' after resolution has started.");
+        }
         $this->bindings[$abstract] = $concrete ?: $abstract;
     }
 
-    public function singleton(string $abstract, $concrete = null): void
-    {
+    public function singleton(string $abstract, mixed $concrete = null): void {
+        if ($this->isLocked) {
+            throw new ResolutionException("Container is locked. Cannot bind singleton '$abstract' after resolution has started.");
+        }
         $this->bind($abstract, $concrete);
         if (!array_key_exists($abstract, $this->instances)) {
             $this->instances[$abstract] = 'uninitialized';
         }
     }
 
-    public function instance(string $abstract, $instance): void
-    {
+    public function instance(string $abstract, mixed $instance): void {
+        if ($this->isLocked) {
+            throw new ResolutionException("Container is locked. Cannot bind instance '$abstract' after resolution has started.");
+        }
         $this->instances[$abstract] = $instance;
     }
 
-    public function extend(string $abstract, \Closure $closure): void
-    {
+    public function extend(string $abstract, \Closure $closure): void {
+        if ($this->isLocked) {
+            throw new ResolutionException("Container is locked. Cannot extend '$abstract' after resolution has started.");
+        }
         $this->extensions[$abstract][] = $closure;
     }
 
-    public function make(string $abstract)
-    {
+    public function lock(): void {
+        $this->isLocked = true;
+    }
+
+    public function make(string $abstract): mixed {
+        $this->lock();
+
         if (array_key_exists($abstract, $this->resolved)) {
             return $this->resolved[$abstract];
         }
@@ -67,8 +79,21 @@ class Container implements ContainerInterface
         return $object;
     }
 
-    private function resolve(string $abstract)
-    {
+    public function get(string $id): mixed {
+        try {
+            return $this->make($id);
+        } catch (BindingNotFoundException $e) {
+            throw $e;
+        } catch (Exception $e) {
+            throw new ResolutionException("Error resolving service '$id': " . $e->getMessage(), 0, $e);
+        }
+    }
+
+    public function has(string $id): bool {
+        return isset($this->bindings[$id]) || array_key_exists($id, $this->instances);
+    }
+
+    private function resolve(string $abstract): mixed {
         if (array_key_exists($abstract, $this->instances) && $this->instances[$abstract] !== 'uninitialized') {
             return $this->instances[$abstract];
         }
@@ -79,8 +104,6 @@ class Container implements ContainerInterface
             }
             throw new ResolutionException("No binding found for $abstract");
         }
-
-
 
         $concrete = $this->bindings[$abstract];
 
@@ -93,8 +116,7 @@ class Container implements ContainerInterface
         return $object;
     }
 
-    private function instantiate(string $className)
-    {
+    private function instantiate(string $className): object {
         if (in_array($className, $this->resolving)) {
             throw new CircularDependencyException("Circular dependency detected: " . implode(' -> ', $this->resolving) . " -> $className");
         }
@@ -102,39 +124,58 @@ class Container implements ContainerInterface
         $this->resolving[] = $className;
 
         try {
-            $reflector = new ReflectionClass($className);
+            if (isset($this->reflectionCache[$className])) {
+                [$isInstantiable, $constructorParams] = $this->reflectionCache[$className];
+            } else {
+                $reflector = new ReflectionClass($className);
+                $isInstantiable = $reflector->isInstantiable();
+                $constructorParams = null;
 
-            if (!$reflector->isInstantiable()) {
+                if ($isInstantiable) {
+                    $constructor = $reflector->getConstructor();
+                    if ($constructor !== null) {
+                        $constructorParams = [];
+                        foreach ($constructor->getParameters() as $parameter) {
+                            $type = $parameter->getType();
+                            $constructorParams[] = [
+                                'name' => $parameter->getName(),
+                                'hasDefault' => $parameter->isDefaultValueAvailable(),
+                                'default' => $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null,
+                                'typeName' => ($type instanceof ReflectionNamedType && !$type->isBuiltin()) ? $type->getName() : null
+                            ];
+                        }
+                    }
+                }
+                $this->reflectionCache[$className] = [$isInstantiable, $constructorParams];
+            }
+
+            if (!$isInstantiable) {
                 throw new ResolutionException("[$className] is not instantiable.");
             }
 
-            $constructor = $reflector->getConstructor();
-
-            if (is_null($constructor)) {
+            if ($constructorParams === null) {
                 array_pop($this->resolving);
-                return new $className;
+                return new $className();
             }
 
             $dependencies = [];
-            foreach ($constructor->getParameters() as $parameter) {
-                $dependency = $parameter->getType();
-
-                if ($dependency === null) {
-                    if (!$parameter->isDefaultValueAvailable()) {
-                        throw new ResolutionException("Primitive parameter without a default value: {$parameter->getName()} in class $className is not supported.");
-                    }
-                    $dependencies[] = $parameter->getDefaultValue();
+            foreach ($constructorParams as $paramInfo) {
+                if ($paramInfo['typeName'] !== null) {
+                    $dependencies[] = $this->make($paramInfo['typeName']);
                 } else {
-                    $dependencies[] = $this->make($dependency->getName());
+                    if (!$paramInfo['hasDefault']) {
+                        throw new ResolutionException("Primitive parameter without a default value: {$paramInfo['name']} in class $className is not supported.");
+                    }
+                    $dependencies[] = $paramInfo['default'];
                 }
             }
 
             array_pop($this->resolving);
-            return $reflector->newInstanceArgs($dependencies);
+            return new $className(...$dependencies);
 
         } catch (ReflectionException $e) {
-            array_pop($this->resolving); // Ensure cleanup if instantiation fails
-            throw new ResolutionException("Failed resolving $className: " . $e->getMessage());
+            array_pop($this->resolving);
+            throw new ResolutionException("Failed resolving $className: " . $e->getMessage(), 0, $e);
         }
     }
 }

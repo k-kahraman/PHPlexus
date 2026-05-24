@@ -2,31 +2,26 @@
 
 namespace PHPlexus\Logging;
 
-class RotatingFileLogger extends FileLogger
-{
-    protected $maxFiles;
+class RotatingFileLogger extends FileLogger {
+    protected int $maxFiles;
 
-    public function __construct(string $filePath, int $maxFiles = 10)
-    {
+    public function __construct(string $filePath, int $maxFiles = 10) {
         parent::__construct($filePath);
         $this->maxFiles = $maxFiles;
     }
 
-    public function log(string $level, string $message, array $context = []): void
-    {
+    public function log(mixed $level, mixed $message, array $context = []): void {
         $this->rotateIfNeeded();
         parent::log($level, $message, $context);
     }
 
-    protected function rotateIfNeeded(): void
-    {
+    protected function rotateIfNeeded(): void {
         if (count(glob($this->filePath . '/*.log')) > $this->maxFiles) {
             $this->rotate();
         }
     }
 
-    protected function rotate(): void
-    {
+    protected function rotate(): void {
         $pathInfo = pathinfo($this->filePath);
         $base = $pathInfo['dirname'] . '/' . $pathInfo['filename'];
         $ext = $pathInfo['extension'];

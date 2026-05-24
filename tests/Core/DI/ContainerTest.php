@@ -130,4 +130,26 @@ class ContainerTest extends TestCase
         $this->assertTrue($object->extensionB);
     }
 
+    public function testPsr11GetAndHas()
+    {
+        $container = new Container();
+        $container->bind('service', \stdClass::class);
+
+        $this->assertTrue($container->has('service'));
+        $this->assertFalse($container->has('nonexistent'));
+
+        $object = $container->get('service');
+        $this->assertInstanceOf(\stdClass::class, $object);
+    }
+
+    public function testContainerLocking()
+    {
+        $this->expectException(\PHPlexus\DI\ResolutionException::class);
+
+        $container = new Container();
+        $container->bind('service', \stdClass::class);
+        $container->make('service'); // Resolving triggers container lock
+
+        $container->bind('another', \stdClass::class); // Should throw ResolutionException
+    }
 }

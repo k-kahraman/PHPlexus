@@ -2,19 +2,23 @@
 
 namespace PHPlexus\Templating;
 
-class TemplateEngine
-{
+class TemplateSandbox {
+    public function __construct(string $__path, array $__data) {
+        extract($__data, EXTR_OVERWRITE);
+        include $__path;
+    }
+}
+
+class TemplateEngine {
     private string $path;
     private ?string $layout;
 
-    public function __construct(string $path, ?string $layout = null)
-    {
+    public function __construct(string $path, ?string $layout = null) {
         $this->path = $path;
         $this->layout = $layout;
     }
 
-    public function render(array $data = []): string
-    {
+    public function render(array $data = []): string {
         $content = $this->fetch($this->path, $data);
 
         if ($this->layout) {
@@ -25,11 +29,9 @@ class TemplateEngine
         return $content;
     }
 
-    private function fetch(string $path, array $data): string
-    {
+    private function fetch(string $path, array $data): string {
         ob_start();
-        extract($data, EXTR_OVERWRITE);
-        include $path;
+        new TemplateSandbox($path, $data);
         return ob_get_clean();
     }
 }

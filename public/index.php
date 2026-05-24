@@ -34,12 +34,16 @@ $response = new Response();
 $middlewareStack = new MiddlewareStack();
 $middlewareStack->add(new SecurityMiddleware());
 
-$middlewareStack->run($request, $response, function ($request, $response) use ($router, $container) {
+$response = $middlewareStack->run($request, $response, function ($request, $response) use ($router, $container) {
     $controllerAction = $router->match($request);
     if ($controllerAction) {
         $controllerClass = $controllerAction['controller'];
         $action = $controllerAction['action'];
         $controller = $container->make($controllerClass);
-        $controller->$action($request, $response);
+        $result = $controller->$action($request, $response);
+        return $result instanceof Response ? $result : $response;
     }
+    return $response;
 });
+
+$response->send();

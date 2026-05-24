@@ -2,26 +2,19 @@
 
 namespace PHPlexus\Core\Entity;
 
-abstract class EntityBuilder
-{
+abstract class EntityBuilder {
+    protected array $attributes = [];
 
-    protected $attributes = [];
-
-    public function set(string $name, $value): self
-    {
+    public function set(string $name, mixed $value): self {
         $this->attributes[$name] = $value;
         return $this;
     }
 
-    public function __call($method, $arguments)
-    {
-        // Check if the method starts with "set"
-        if (strncmp($method, 'set', 3) === 0) {
+    public function __call(string $method, array $arguments): self {
+        if (str_starts_with($method, 'set')) {
             $attribute = lcfirst(substr($method, 3));
-            if (isset($this->attributes[$attribute])) {
-                $this->set($attribute, $arguments[0]);
-                return $this;
-            }
+            $this->set($attribute, $arguments[0]);
+            return $this;
         }
 
         throw new \BadMethodCallException("The method $method does not exist.");

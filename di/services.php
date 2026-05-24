@@ -9,6 +9,12 @@ $container->bind(\PHPlexus\Model\Model::class);
 $container->bind(\PHPlexus\Repository\Repository::class);
 $container->bind(\PHPlexus\Service\Service::class);
 $container->bind(\PHPlexus\Controller\Controller::class);
+$container->singleton(\PHPlexus\Interfaces\LoggerInterface::class, function($container) {
+    return new \PHPlexus\Logging\StreamLogger();
+});
+$container->singleton(\Psr\Log\LoggerInterface::class, function($container) {
+    return $container->make(\PHPlexus\Interfaces\LoggerInterface::class);
+});
 $container->singleton(\PHPlexus\Logging\RotatingFileLogger::class, function($container) {
     $config = $container->make('config');  // Get the configurations from the container
     $logPath = $config['logPath'] ?? '/var/www/html/logs/php.log';  // Default path if not provided in config

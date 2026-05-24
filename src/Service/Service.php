@@ -2,17 +2,16 @@
 
 namespace PHPlexus\Service;
 
-use PHPlexus\Core\Entity;
 use PHPlexus\Repository\Repository;
 
 class Service {
-    private $repository;
+    private Repository $repository;
 
     public function __construct(Repository $repository) {
         $this->repository = $repository;
     }
 
-    public function serveData() {
+    public function serveData(): string {
         return $this->repository->fetchData();
     }
 }

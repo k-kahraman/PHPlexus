@@ -6,34 +6,27 @@ use PHPlexus\Interfaces\MiddlewareInterface;
 use PHPlexus\Http\Request;
 use PHPlexus\Http\Response;
 
-class SecurityMiddleware implements MiddlewareInterface
-{
-    public function handle(Request $request, Response $response, callable $next): void
-    {
-        // Block non-HTTPS requests only in production environment
-        if (getenv('APP_ENV') === 'production' && !$request->getServerParam('HTTPS')) {
+class SecurityMiddleware implements MiddlewareInterface {
+    public function handle(Request $request, Response $response, callable $next): Response {
+        // Block non-HTTPS requests in production environment using trusted-proxy aware isSecure()
+        if (getenv('APP_ENV') === 'production' && !$request->isSecure()) {
             $response->setStatusCode(403);
             $response->setContent("HTTPS required");
-            $response->send();
-            return;
+            return $response;
         }
 
-        // 2. XSS Protection
-        $response->addHeader('X-XSS-Protection', '1; mode=block');
+        // Modern Security Headers
+        $response->addHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;");
 
-        // 3. HSTS - Ensuring HTTPS is always used
-        $response->addHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+        if ($request->isSecure()) {
+            $response->addHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+        }
 
-        // 4. Frame protection - deny embedding page into an iframe
         $response->addHeader('X-Frame-Options', 'DENY');
-
-        // 5. Disable content type sniffing
         $response->addHeader('X-Content-Type-Options', 'nosniff');
-
-        // 6. Referrer policy
         $response->addHeader('Referrer-Policy', 'no-referrer-when-downgrade');
+        $response->addHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
 
-        // Continue to the next middleware or request handler
-        $next($request, $response);
+        return $next($request, $response);
     }
 }

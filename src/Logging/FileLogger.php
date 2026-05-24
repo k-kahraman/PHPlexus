@@ -2,12 +2,12 @@
 
 namespace PHPlexus\Logging;
 
+use Psr\Log\AbstractLogger;
 use PHPlexus\Interfaces\LoggerInterface;
 
-class FileLogger implements LoggerInterface
-{
-    protected $filePath;
-    protected $colors = [
+class FileLogger extends AbstractLogger implements LoggerInterface {
+    protected string $filePath;
+    protected array $colors = [
         'info' => "\e[34m",
         // Blue
         'debug' => "\e[36m",
@@ -17,8 +17,7 @@ class FileLogger implements LoggerInterface
         'warning' => "\e[33m" // Yellow
     ];
 
-    public function __construct(string $filePath)
-    {
+    public function __construct(string $filePath) {
         if (empty($filePath)) {
             throw new \InvalidArgumentException("File path cannot be empty.");
         }
@@ -50,15 +49,14 @@ class FileLogger implements LoggerInterface
         }
     }
 
-
-    public function log(string $level, string $message, array $context = []): void
-    {
-        $formattedMessage = $this->formatMessage($level, $message, $context);
+    public function log(mixed $level, mixed $message, array $context = []): void {
+        $levelStr = is_string($level) ? $level : (is_scalar($level) ? strval($level) : json_encode($level));
+        $messageStr = is_string($message) ? $message : ($message instanceof \Stringable ? $message->__toString() : json_encode($message));
+        $formattedMessage = $this->formatMessage($levelStr, $messageStr, $context);
         file_put_contents($this->filePath, $formattedMessage, FILE_APPEND);
     }
 
-    protected function formatMessage(string $level, string $message, array $context): string
-    {
+    protected function formatMessage(string $level, string $message, array $context): string {
         $color = $this->colors[$level] ?? '';
         $resetColor = "\e[0m";
         $date = date('Y-m-d H:i:s');
@@ -67,14 +65,5 @@ class FileLogger implements LoggerInterface
         $message = $color . "[#{$level} {$date}#] {$message} " . json_encode($context) . $resetColor . PHP_EOL;
 
         return $message;
-    }
-
-    // Reflective methods
-    public function __call($method, $args)
-    {
-        if (strpos($method, 'log') === 0) {
-            $level = strtolower(substr($method, 3));
-            $this->log($level, $args[0], $args[1] ?? []);
-        }
     }
 }

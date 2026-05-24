@@ -2,7 +2,7 @@
 
 namespace PHPlexus\Interfaces;
 
-interface LoggerInterface
-{
-    public function log(string $level, string $message, array $context = []): void;
+use Psr\Log\LoggerInterface as PsrLoggerInterface;
+
+interface LoggerInterface extends PsrLoggerInterface {
 }
